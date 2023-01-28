@@ -50,10 +50,13 @@ class _VideoPickerPageState extends State<VideoPickerPage> {
     final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
     if (mounted && file != null) {
       Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-              builder: (BuildContext context) =>
-                  VideoEditor(file: File(file.path))));
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => VideoEditor(
+            file: File(file.path),
+          ),
+        ),
+      );
     }
   }
 
@@ -390,12 +393,15 @@ class _VideoEditorState extends State<VideoEditor> {
         width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.symmetric(vertical: height / 4),
         child: TrimSlider(
+          controller: _controller,
+          maxDuration: _controller.maxDuration,
+          height: height,
+          horizontalMargin: height / 4,
+          child: TrimTimeline(
             controller: _controller,
-            height: height,
-            horizontalMargin: height / 4,
-            child: TrimTimeline(
-                controller: _controller,
-                margin: const EdgeInsets.only(top: 10))),
+            margin: const EdgeInsets.only(top: 10),
+          ),
+        ),
       )
     ];
   }

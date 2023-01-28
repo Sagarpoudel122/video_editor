@@ -11,6 +11,7 @@ class TrimSlider extends StatefulWidget {
   const TrimSlider({
     Key? key,
     required this.controller,
+    required this.maxDuration,
     this.height = 60,
     this.quality = 10,
     this.horizontalMargin = 0.0,
@@ -33,6 +34,9 @@ class TrimSlider extends StatefulWidget {
   /// The [child] param can be specify to display a widget below this one (e.g: [TrimTimeline])
   final Widget? child;
 
+  ///Setting the max duration to have custom control over the trimmer
+  final Duration maxDuration;
+
   @override
   State<TrimSlider> createState() => _TrimSliderState();
 }
@@ -48,7 +52,9 @@ class _TrimSliderState extends State<TrimSlider>
   late VideoPlayerController _controller;
 
   double _thumbnailPosition = 0.0;
+  double _maxRectWidth = 0.0;
   double? _ratio;
+
   // trim line width set in the style
   double _trimWidth = 0.0;
 
@@ -103,7 +109,17 @@ class _TrimSliderState extends State<TrimSlider>
         // avoid minTrim to be bigger than maxTrim
         if (pos.dx > widget.horizontalMargin &&
             pos.dx < _rect.right - _trimWidth * 2) {
-          _changeTrimRect(left: pos.dx, width: _rect.width - delta.dx);
+          if (_rect.width < _maxRectWidth || delta.dx > 0) {
+            _changeTrimRect(
+                left: pos.dx,
+                width: _rect.width - delta.dx >= _maxRectWidth
+                    ? _maxRectWidth
+                    : _rect.width - delta.dx);
+          } else if (delta.dx < 0 &&
+              pos.dx > widget.horizontalMargin &&
+              pos.dx < _rect.right) {
+            _changeTrimRect(left: _rect.left + delta.dx);
+          }
         }
         break;
       case _TrimBoundaries.right:
@@ -111,7 +127,14 @@ class _TrimSliderState extends State<TrimSlider>
         // avoid maxTrim to be smaller than minTrim
         if (pos.dx < _trimLayout.width + widget.horizontalMargin &&
             pos.dx > _rect.left + _trimWidth * 2) {
-          _changeTrimRect(width: _rect.width + delta.dx);
+          if (_rect.width - _maxRectWidth < -0.0000000000005 || delta.dx < 0) {
+            _changeTrimRect(
+                width: _rect.width + delta.dx >= _maxRectWidth
+                    ? _maxRectWidth
+                    : _rect.width + delta.dx);
+          } else if (delta.dx > 0 && pos.dx > widget.horizontalMargin) {
+            _changeTrimRect(left: _rect.left + delta.dx);
+          }
         }
         break;
       case _TrimBoundaries.inside:
@@ -238,6 +261,16 @@ class _TrimSliderState extends State<TrimSlider>
         _trimLayout = trimLayout;
         _createTrimRect();
       }
+
+      Future.delayed(Duration.zero, () {
+        final videoDuration = widget.controller.videoDuration;
+        _maxRectWidth = widget.maxDuration.inMilliseconds /
+            videoDuration.inMilliseconds *
+            _fullLayout.width;
+        if (videoDuration.inMilliseconds > widget.maxDuration.inMilliseconds) {
+          _changeTrimRect(width: _maxRectWidth);
+        }
+      });
 
       return SizedBox(
           width: _fullLayout.width,
