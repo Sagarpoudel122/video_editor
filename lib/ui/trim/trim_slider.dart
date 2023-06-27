@@ -173,6 +173,7 @@ class _TrimSliderState extends State<TrimSlider>
         _updateControllerTrim();
       }
     }
+    _controller.seekTo(widget.controller.startTrim);
   }
 
   //----//

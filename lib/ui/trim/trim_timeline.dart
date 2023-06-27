@@ -29,7 +29,6 @@ class _TrimTimelineState extends State<TrimTimeline> {
 
   @override
   void initState() {
-    widget.controller.videoPosition;
     final Duration duration =
         widget.controller.maxDuration < widget.controller.videoDuration
             ? widget.controller.maxDuration
