@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_editor/domain/bloc/controller.dart';
 import 'package:video_editor/ui/trim/thumbnail_slider.dart';
 import 'package:video_editor/ui/trim/trim_slider_painter.dart';
+import 'dart:ui' as ui;
 
 enum _TrimBoundaries { left, right, inside, progress, none }
 
@@ -16,6 +20,7 @@ class TrimSlider extends StatefulWidget {
     this.quality = 10,
     this.horizontalMargin = 0.0,
     this.child,
+    this.isTranslucent = false,
   }) : super(key: key);
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
@@ -36,6 +41,8 @@ class TrimSlider extends StatefulWidget {
 
   ///Setting the max duration to have custom control over the trimmer
   final Duration maxDuration;
+
+  final bool isTranslucent;
 
   @override
   State<TrimSlider> createState() => _TrimSliderState();
@@ -248,6 +255,24 @@ class _TrimSliderState extends State<TrimSlider>
     return (duration * max) - (duration * min);
   }
 
+  ui.Image? image;
+
+  Future<ui.Image> loadImage() async {
+    final completer = Completer<ui.Image>();
+    Image.asset(
+      'assets/images/trimmer.png',
+      package: 'video_editor',
+    )
+        .image
+        .resolve(const ImageConfiguration())
+        .addListener(ImageStreamListener((info, synchronousCall) {
+      completer.complete(info.image);
+    }));
+
+    final ui.Image image = await completer.future;
+    return image;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -273,60 +298,72 @@ class _TrimSliderState extends State<TrimSlider>
         }
       });
 
-      return SizedBox(
-          width: _fullLayout.width,
-          child: Stack(children: [
-            NotificationListener<ScrollNotification>(
-              child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Container(
-                      margin: EdgeInsets.symmetric(
-                          horizontal: widget.horizontalMargin),
-                      child: Column(children: [
-                        SizedBox(
-                            height: widget.height,
-                            width: _fullLayout.width,
-                            child: ThumbnailSlider(
-                                controller: widget.controller,
-                                height: widget.height,
-                                quality: widget.quality)),
-                        if (widget.child != null)
-                          SizedBox(
-                              width: _fullLayout.width, child: widget.child)
-                      ]))),
-              onNotification: (notification) {
-                _boundary.value = _TrimBoundaries.inside;
-                _updateControllerIsTrimming(true);
-                if (notification is ScrollEndNotification) {
-                  _thumbnailPosition = notification.metrics.pixels;
-                  _controllerSeekTo(_rect.left);
-                  _updateControllerIsTrimming(false);
-                  _updateControllerTrim();
-                }
-                return true;
-              },
-            ),
-            GestureDetector(
-              onHorizontalDragUpdate: _onHorizontalDragUpdate,
-              onHorizontalDragStart: _onHorizontalDragStart,
-              onHorizontalDragEnd: _onHorizontalDragEnd,
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedBuilder(
-                animation: Listenable.merge([widget.controller, _controller]),
-                builder: (_, __) {
-                  return CustomPaint(
-                    size: Size.fromHeight(widget.height),
-                    painter: TrimSliderPainter(
-                      _rect,
-                      _getTrimPosition(),
-                      widget.controller.trimStyle,
+      return FutureBuilder(
+          future: loadImage(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Container(
+                  width: _fullLayout.width,
+                  child: Stack(children: [
+                    NotificationListener<ScrollNotification>(
+                      child: SingleChildScrollView(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: widget.horizontalMargin),
+                              child: Column(children: [
+                                SizedBox(
+                                    height: widget.height,
+                                    width: _fullLayout.width,
+                                    child: ThumbnailSlider(
+                                        controller: widget.controller,
+                                        height: widget.height,
+                                        quality: widget.quality)),
+                                if (widget.child != null)
+                                  SizedBox(
+                                      width: _fullLayout.width,
+                                      child: widget.child)
+                              ]))),
+                      onNotification: (notification) {
+                        _boundary.value = _TrimBoundaries.inside;
+                        _updateControllerIsTrimming(true);
+                        if (notification is ScrollEndNotification) {
+                          _thumbnailPosition = notification.metrics.pixels;
+                          _controllerSeekTo(_rect.left);
+                          _updateControllerIsTrimming(false);
+                          _updateControllerTrim();
+                        }
+                        return true;
+                      },
                     ),
-                  );
-                },
-              ),
-            )
-          ]));
+                    GestureDetector(
+                      onHorizontalDragUpdate: _onHorizontalDragUpdate,
+                      onHorizontalDragStart: _onHorizontalDragStart,
+                      onHorizontalDragEnd: _onHorizontalDragEnd,
+                      behavior: HitTestBehavior.opaque,
+                      child: AnimatedBuilder(
+                        animation:
+                            Listenable.merge([widget.controller, _controller]),
+                        builder: (_, __) {
+                          return CustomPaint(
+                            size: Size.fromHeight(widget.height),
+                            painter: TrimSliderPainter(
+                              snapshot.data as ui.Image,
+                              _rect,
+                              _getTrimPosition(),
+                              widget.controller.trimStyle,
+                              isTranslucent: widget.isTranslucent,
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  ]));
+            } else {
+              return Text(snapshot.error.toString());
+            }
+          });
     });
   }
 }

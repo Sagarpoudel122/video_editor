@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 class TrimSliderStyle {
   ///Style for [TrimSlider]. It's use on VideoEditorController

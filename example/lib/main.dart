@@ -391,12 +391,16 @@ class _VideoEditorState extends State<VideoEditor> {
       ),
       Container(
         width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: height / 4),
+        margin: EdgeInsets.symmetric(
+          vertical: height / 4,
+          horizontal: 24,
+        ),
         child: TrimSlider(
           controller: _controller,
           maxDuration: _controller.maxDuration,
           height: height,
           horizontalMargin: height / 4,
+          isTranslucent: true,
           child: TrimTimeline(
             controller: _controller,
             margin: const EdgeInsets.only(top: 10),

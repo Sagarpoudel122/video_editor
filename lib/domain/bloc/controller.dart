@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter_https_gpl/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_https_gpl/statistics.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -59,6 +63,18 @@ class VideoEditorController extends ChangeNotifier {
   /// Video from [File].
   final File file;
 
+  Future<ui.Image> loadImage(String assetPath) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final Uint8List bytes = data.buffer.asUint8List();
+    final Completer<ui.Image> completer = Completer();
+
+    ui.decodeImageFromList(Uint8List.view(bytes.buffer), (ui.Image img) {
+      completer.complete(img);
+    });
+
+    return completer.future;
+  }
+
   /// Constructs a [VideoEditorController] that edits a video from a file.
   ///
   /// The [file] argument must not be null.
@@ -72,7 +88,9 @@ class VideoEditorController extends ChangeNotifier {
         _maxDuration = maxDuration ?? Duration.zero,
         cropStyle = cropStyle ?? CropGridStyle(),
         coverStyle = coverStyle ?? CoverSelectionStyle(),
-        trimStyle = trimStyle ?? TrimSliderStyle();
+        trimStyle = trimStyle ??
+            TrimSliderStyle(
+            );
 
   int _rotation = 0;
   bool _isTrimming = false;
