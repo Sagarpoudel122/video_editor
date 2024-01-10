@@ -113,7 +113,7 @@ class _VideoEditorState extends State<VideoEditor> {
   @override
   void initState() {
     _controller = VideoEditorController.file(widget.file,
-        maxDuration: const Duration(seconds: 30))
+        maxDuration: const Duration(seconds: 60))
       ..initialize().then((_) => setState(() {}));
     super.initState();
   }
@@ -247,13 +247,13 @@ class _VideoEditorState extends State<VideoEditor> {
                               height: 200,
                               margin: const EdgeInsets.only(top: 10),
                               child: Column(children: [
-                                TabBar(
+                                const TabBar(
                                   indicatorColor: Colors.white,
                                   tabs: [
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
-                                        children: const [
+                                        children: [
                                           Padding(
                                               padding: EdgeInsets.all(5),
                                               child: Icon(Icons.content_cut)),
@@ -262,7 +262,7 @@ class _VideoEditorState extends State<VideoEditor> {
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
-                                        children: const [
+                                        children: [
                                           Padding(
                                               padding: EdgeInsets.all(5),
                                               child: Icon(Icons.video_label)),
@@ -397,10 +397,12 @@ class _VideoEditorState extends State<VideoEditor> {
         ),
         child: TrimSlider(
           controller: _controller,
-          maxDuration: _controller.maxDuration,
+          maxDuration: const Duration(seconds: 10),
+          minDuration: const Duration(seconds: 5),
           height: height,
           horizontalMargin: height / 4,
           isTranslucent: true,
+          allowTrimmerWindowChange: true,
           child: TrimTimeline(
             controller: _controller,
             margin: const EdgeInsets.only(top: 10),

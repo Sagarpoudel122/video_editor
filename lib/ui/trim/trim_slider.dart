@@ -16,11 +16,13 @@ class TrimSlider extends StatefulWidget {
     Key? key,
     required this.controller,
     required this.maxDuration,
+    this.minDuration = const Duration(seconds: 1),
     this.height = 60,
     this.quality = 10,
     this.horizontalMargin = 0.0,
     this.child,
     this.isTranslucent = false,
+    this.allowTrimmerWindowChange = false,
   }) : super(key: key);
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
@@ -41,6 +43,12 @@ class TrimSlider extends StatefulWidget {
 
   ///Setting the max duration to have custom control over the trimmer
   final Duration maxDuration;
+
+  ///Setting the min duration to have custom control over the trimmer
+  final Duration minDuration;
+
+  ///Whether to allow to change trimmer window
+  final bool allowTrimmerWindowChange;
 
   final bool isTranslucent;
 
@@ -188,13 +196,17 @@ class _TrimSliderState extends State<TrimSlider>
   //----//
   void _changeTrimRect({double? left, double? width}) {
     left = left ?? _rect.left;
+    if (!widget.allowTrimmerWindowChange) {
+      width = null;
+    }
     width = width ?? _rect.width;
 
     final Duration diff = _getDurationDiff(left, width);
 
     if (left >= 0 &&
         left + width - widget.horizontalMargin <= _trimLayout.width &&
-        diff <= widget.controller.maxDuration) {
+        diff <= widget.controller.maxDuration &&
+        diff >= widget.minDuration) {
       _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
       _updateControllerTrim();
     }
