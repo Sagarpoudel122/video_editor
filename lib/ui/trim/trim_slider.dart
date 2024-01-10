@@ -319,24 +319,30 @@ class _TrimSliderState extends State<TrimSlider>
                   child: Stack(children: [
                     NotificationListener<ScrollNotification>(
                       child: SingleChildScrollView(
-                          controller: _scrollController,
-                          scrollDirection: Axis.horizontal,
-                          child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: widget.horizontalMargin),
-                              child: Column(children: [
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: widget.horizontalMargin),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: widget.height,
+                                width: _fullLayout.width,
+                                child: ThumbnailSlider(
+                                  controller: widget.controller,
+                                  height: widget.height,
+                                  quality: widget.quality,
+                                ),
+                              ),
+                              if (widget.child != null)
                                 SizedBox(
-                                    height: widget.height,
                                     width: _fullLayout.width,
-                                    child: ThumbnailSlider(
-                                        controller: widget.controller,
-                                        height: widget.height,
-                                        quality: widget.quality)),
-                                if (widget.child != null)
-                                  SizedBox(
-                                      width: _fullLayout.width,
-                                      child: widget.child)
-                              ]))),
+                                    child: widget.child)
+                            ],
+                          ),
+                        ),
+                      ),
                       onNotification: (notification) {
                         _boundary.value = _TrimBoundaries.inside;
                         _updateControllerIsTrimming(true);

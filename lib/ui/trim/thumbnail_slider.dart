@@ -126,42 +126,45 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
         builder: (_, AsyncSnapshot<List<Uint8List>> snapshot) {
           final data = snapshot.data;
           return snapshot.hasData
-              ? ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.zero,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: data!.length,
-                  itemBuilder: (_, int index) {
-                    return ValueListenableBuilder(
-                      valueListenable: _transform,
-                      builder: (_, TransformData transform, __) {
-                        return CropTransform(
-                          transform: transform,
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: _layout.height,
-                            width: _layout.width,
-                            child: Stack(children: [
-                              Image(
-                                image: MemoryImage(data[index]),
-                                width: _layout.width,
-                                height: _layout.height,
-                                alignment: Alignment.topLeft,
-                              ),
-                              CustomPaint(
-                                size: _layout,
-                                painter: CropGridPainter(
-                                  _rect.value,
-                                  showGrid: false,
-                                  style: widget.controller.cropStyle,
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: data!.length,
+                    itemBuilder: (_, int index) {
+                      return ValueListenableBuilder(
+                        valueListenable: _transform,
+                        builder: (_, TransformData transform, __) {
+                          return CropTransform(
+                            transform: transform,
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: _layout.height,
+                              width: _layout.width,
+                              child: Stack(children: [
+                                Image(
+                                  image: MemoryImage(data[index]),
+                                  width: _layout.width,
+                                  height: _layout.height,
+                                  alignment: Alignment.topLeft,
                                 ),
-                              ),
-                            ]),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                                CustomPaint(
+                                  size: _layout,
+                                  painter: CropGridPainter(
+                                    _rect.value,
+                                    showGrid: false,
+                                    style: widget.controller.cropStyle,
+                                  ),
+                                ),
+                              ]),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 )
               : const SizedBox();
         },
