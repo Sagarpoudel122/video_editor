@@ -33,7 +33,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
       ValueNotifier<TransformData>(TransformData());
 
   double _aspect = 1.0, _width = 1.0;
-  int _thumbnails = 8;
+  int _thumbnails = 3;
 
   Size _layout = Size.zero;
   late final Stream<List<Uint8List>> _stream = (() => _generateThumbnails())();
