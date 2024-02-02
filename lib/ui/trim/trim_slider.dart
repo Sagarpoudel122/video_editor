@@ -205,13 +205,21 @@ class _TrimSliderState extends State<TrimSlider>
     width = width ?? _rect.width;
 
     final Duration diff = _getDurationDiff(left, width);
-
-    if (left >= 0 &&
-        left + width - widget.horizontalMargin <= _trimLayout.width &&
-        diff <= widget.controller.maxDuration &&
-        (widget.isReelsMode ? (diff >= widget.minDuration) : true)) {
-      _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
-      _updateControllerTrim();
+    if (widget.isReelsMode) {
+      if (left >= 0 &&
+          left + width - widget.horizontalMargin <= _trimLayout.width &&
+          diff <= widget.controller.maxDuration &&
+          diff >= widget.minDuration) {
+        _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
+        _updateControllerTrim();
+      }
+    } else {
+      if (left >= 0 &&
+          left + width - widget.horizontalMargin <= _trimLayout.width &&
+          diff <= widget.controller.maxDuration) {
+        _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
+        _updateControllerTrim();
+      }
     }
   }
 
