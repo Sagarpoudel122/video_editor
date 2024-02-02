@@ -23,6 +23,7 @@ class TrimSlider extends StatefulWidget {
     this.child,
     this.isTranslucent = false,
     this.allowTrimmerWindowChange = false,
+    this.isReelsMode = false,
   }) : super(key: key);
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
@@ -51,6 +52,8 @@ class TrimSlider extends StatefulWidget {
   final bool allowTrimmerWindowChange;
 
   final bool isTranslucent;
+
+  final bool isReelsMode;
 
   @override
   State<TrimSlider> createState() => _TrimSliderState();
@@ -206,7 +209,7 @@ class _TrimSliderState extends State<TrimSlider>
     if (left >= 0 &&
         left + width - widget.horizontalMargin <= _trimLayout.width &&
         diff <= widget.controller.maxDuration &&
-        diff >= widget.minDuration) {
+        (widget.isReelsMode ? (diff >= widget.minDuration) : true)) {
       _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
       _updateControllerTrim();
     }
