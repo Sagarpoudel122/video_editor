@@ -10,6 +10,7 @@ class TrimSliderPainter extends CustomPainter {
     this.position,
     this.style, {
     this.isTranslucent = false,
+    this.isForReels = false,
   });
 
   final Rect rect;
@@ -17,6 +18,7 @@ class TrimSliderPainter extends CustomPainter {
   final TrimSliderStyle style;
   final ui.Image image;
   final bool isTranslucent;
+  final bool isForReels;
 
   Path createCShapePath(Rect rect, double radius) {
     Path path = Path();
@@ -84,10 +86,7 @@ class TrimSliderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) async {
-    final Paint backgroundFill = Paint()
-      ..color = isTranslucent
-          ? Colors.black.withOpacity(.5)
-          : const Color(0xffeef0f9);
+    final Paint backgroundFill = Paint()..color = const Color(0xffeef0f9);
 
     final Paint backgroundBorder = Paint()
       ..style = PaintingStyle.stroke
@@ -99,15 +98,19 @@ class TrimSliderPainter extends CustomPainter {
       ..strokeWidth = style.positionLineWidth;
 
     final line = Paint()
-      ..color = const Color(0xff989eb3)
+      ..color = !isForReels ? const Color(0xff989eb3) : Colors.transparent
       ..strokeWidth = style.lineWidth
       ..strokeCap = StrokeCap.square;
 
     final double halfLineWidth = style.lineWidth / 2;
 
     final double halfHeight = rect.height / 2;
-
-    const backgroundRectRadius = 8.0;
+    var backgroundRectRadius = 0.0;
+    if (isForReels) {
+      backgroundRectRadius = 0.0;
+    } else {
+      backgroundRectRadius = 0.0;
+    }
 
     // Displays the progess line
     canvas.drawRect(
@@ -125,8 +128,21 @@ class TrimSliderPainter extends CustomPainter {
           Offset.zero,
           rect.bottomLeft, // Bottom-left corner of the rectangle
         ),
-        topLeft: const Radius.circular(backgroundRectRadius),
-        bottomLeft: const Radius.circular(backgroundRectRadius),
+        topLeft: Radius.circular(backgroundRectRadius),
+        bottomLeft: Radius.circular(backgroundRectRadius),
+      ),
+      backgroundFill,
+    );
+
+    // Displays the right background
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromPoints(
+          rect.topRight,
+          Offset(size.width, size.height),
+        ),
+        topRight: Radius.circular(backgroundRectRadius),
+        bottomRight: Radius.circular(backgroundRectRadius),
       ),
       backgroundFill,
     );
@@ -140,19 +156,6 @@ class TrimSliderPainter extends CustomPainter {
           ),
           backgroundRectRadius),
       backgroundBorder,
-    );
-
-    // Displays the right background
-    canvas.drawRRect(
-      RRect.fromRectAndCorners(
-        Rect.fromPoints(
-          rect.topRight,
-          Offset(size.width, size.height),
-        ),
-        topRight: const Radius.circular(backgroundRectRadius),
-        bottomRight: const Radius.circular(backgroundRectRadius),
-      ),
-      backgroundFill,
     );
 
     // Draws the border of right background

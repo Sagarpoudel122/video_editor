@@ -401,7 +401,7 @@ class _VideoEditorState extends State<VideoEditor> {
           minDuration: const Duration(seconds: 5),
           height: height,
           horizontalMargin: height / 4,
-          isTranslucent: true,
+          // isTranslucent: true,
           allowTrimmerWindowChange: true,
           child: TrimTimeline(
             controller: _controller,

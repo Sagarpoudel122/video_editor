@@ -21,8 +21,8 @@ class TrimSlider extends StatefulWidget {
     this.quality = 10,
     this.horizontalMargin = 0.0,
     this.child,
-    this.isTranslucent = false,
     this.allowTrimmerWindowChange = false,
+    this.isForReels = false,
   }) : super(key: key);
 
   /// The [controller] param is mandatory so every change in the controller settings will propagate in the trim slider view
@@ -50,7 +50,7 @@ class TrimSlider extends StatefulWidget {
   ///Whether to allow to change trimmer window
   final bool allowTrimmerWindowChange;
 
-  final bool isTranslucent;
+  final bool isForReels;
 
   @override
   State<TrimSlider> createState() => _TrimSliderState();
@@ -323,7 +323,8 @@ class _TrimSliderState extends State<TrimSlider>
                           scrollDirection: Axis.horizontal,
                           child: Container(
                               margin: EdgeInsets.symmetric(
-                                  horizontal: widget.horizontalMargin),
+                                horizontal: widget.horizontalMargin,
+                              ),
                               child: Column(children: [
                                 SizedBox(
                                     height: widget.height,
@@ -365,7 +366,7 @@ class _TrimSliderState extends State<TrimSlider>
                               _rect,
                               _getTrimPosition(),
                               widget.controller.trimStyle,
-                              isTranslucent: widget.isTranslucent,
+                              isForReels: widget.isForReels,
                             ),
                           );
                         },
