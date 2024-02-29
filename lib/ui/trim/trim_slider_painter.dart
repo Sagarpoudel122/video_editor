@@ -86,11 +86,12 @@ class TrimSliderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) async {
-    final Paint backgroundFill = Paint()..color = const Color(0xffeef0f9);
+    final Paint backgroundFill = Paint()
+      ..color = isForReels ? Colors.black : const Color(0xffeef0f9);
 
     final Paint backgroundBorder = Paint()
       ..style = PaintingStyle.stroke
-      ..color = const Color(0xffd9deef)
+      ..color = isForReels ? Colors.transparent : const Color(0xffd9deef)
       ..strokeWidth = 2.0;
 
     final progress = Paint()
@@ -121,32 +122,33 @@ class TrimSliderPainter extends CustomPainter {
       progress,
     );
 
-    // Displays the left background
-    canvas.drawRRect(
-      RRect.fromRectAndCorners(
-        Rect.fromPoints(
-          Offset.zero,
-          rect.bottomLeft, // Bottom-left corner of the rectangle
+    if (!isForReels) {
+      // Displays the left background
+      canvas.drawRRect(
+        RRect.fromRectAndCorners(
+          Rect.fromPoints(
+            Offset.zero,
+            rect.bottomLeft, // Bottom-left corner of the rectangle
+          ),
+          topLeft: Radius.circular(backgroundRectRadius),
+          bottomLeft: Radius.circular(backgroundRectRadius),
         ),
-        topLeft: Radius.circular(backgroundRectRadius),
-        bottomLeft: Radius.circular(backgroundRectRadius),
-      ),
-      backgroundFill,
-    );
+        backgroundFill,
+      );
 
-    // Displays the right background
-    canvas.drawRRect(
-      RRect.fromRectAndCorners(
-        Rect.fromPoints(
-          rect.topRight,
-          Offset(size.width, size.height),
+      // Displays the right background
+      canvas.drawRRect(
+        RRect.fromRectAndCorners(
+          Rect.fromPoints(
+            rect.topRight,
+            Offset(size.width, size.height),
+          ),
+          topRight: Radius.circular(backgroundRectRadius),
+          bottomRight: Radius.circular(backgroundRectRadius),
         ),
-        topRight: Radius.circular(backgroundRectRadius),
-        bottomRight: Radius.circular(backgroundRectRadius),
-      ),
-      backgroundFill,
-    );
-
+        backgroundFill,
+      );
+    }
     // Draws the border of left background
     canvas.drawPath(
       createCShapePath(
