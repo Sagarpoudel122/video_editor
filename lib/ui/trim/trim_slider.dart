@@ -315,6 +315,7 @@ class _TrimSliderState extends State<TrimSlider>
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Container(
+                  color: widget.isForReels ? Colors.black : Colors.transparent,
                   width: _fullLayout.width,
                   child: Stack(children: [
                     NotificationListener<ScrollNotification>(
