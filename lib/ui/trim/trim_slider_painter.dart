@@ -87,11 +87,17 @@ class TrimSliderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) async {
     final Paint backgroundFill = Paint()
-      ..color = isForReels ? Colors.black : const Color(0xffeef0f9);
+      ..color =
+          isForReels ? Colors.black.withOpacity(0.5) : const Color(0xffeef0f9);
 
     final Paint backgroundBorder = Paint()
       ..style = PaintingStyle.stroke
       ..color = isForReels ? Colors.transparent : const Color(0xffd9deef)
+      ..strokeWidth = 2.0;
+
+    final Paint trimmerBorder = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = const Color(0xff3684F8)
       ..strokeWidth = 2.0;
 
     final progress = Paint()
@@ -122,33 +128,32 @@ class TrimSliderPainter extends CustomPainter {
       progress,
     );
 
-    if (!isForReels) {
-      // Displays the left background
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          Rect.fromPoints(
-            Offset.zero,
-            rect.bottomLeft, // Bottom-left corner of the rectangle
-          ),
-          topLeft: Radius.circular(backgroundRectRadius),
-          bottomLeft: Radius.circular(backgroundRectRadius),
+    // Displays the left background
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromPoints(
+          Offset.zero,
+          rect.bottomLeft, // Bottom-left corner of the rectangle
         ),
-        backgroundFill,
-      );
+        topLeft: Radius.circular(backgroundRectRadius),
+        bottomLeft: Radius.circular(backgroundRectRadius),
+      ),
+      backgroundFill,
+    );
 
-      // Displays the right background
-      canvas.drawRRect(
-        RRect.fromRectAndCorners(
-          Rect.fromPoints(
-            rect.topRight,
-            Offset(size.width, size.height),
-          ),
-          topRight: Radius.circular(backgroundRectRadius),
-          bottomRight: Radius.circular(backgroundRectRadius),
+    // Displays the right background
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromPoints(
+          rect.topRight,
+          Offset(size.width, size.height),
         ),
-        backgroundFill,
-      );
-    }
+        topRight: Radius.circular(backgroundRectRadius),
+        bottomRight: Radius.circular(backgroundRectRadius),
+      ),
+      backgroundFill,
+    );
+
     // Draws the border of left background
     canvas.drawPath(
       createCShapePath(
@@ -185,20 +190,49 @@ class TrimSliderPainter extends CustomPainter {
       line,
     );
 
-    // Left slider
-    canvas.drawImage(
+    if (isForReels) {
+      canvas.drawLine(
+        Offset(rect.left, 1),
+        Offset(rect.right, 1),
+        trimmerBorder,
+      );
+
+      canvas.drawLine(
+        Offset(rect.left, size.height - 1),
+        Offset(rect.right, size.height - 1),
+        trimmerBorder,
+      );
+      // Left slider
+      canvas.drawLine(
+        Offset(rect.left, 0),
+        Offset(rect.left, size.height),
+        trimmerBorder..strokeWidth = 6,
+      );
+
+      // Right slider
+      canvas.drawLine(
+        Offset(rect.right, 0),
+        Offset(rect.right, size.height),
+        trimmerBorder..strokeWidth = 6,
+      );
+    } else {
+      // Left slider
+      canvas.drawImage(
+          image,
+          Offset(
+            rect.left - style.iconSize / 4,
+            halfHeight - style.iconSize / 1.3,
+          ),
+          Paint());
+
+      // Right slider
+      canvas.drawImage(
         image,
         Offset(
-            rect.left - style.iconSize / 4, halfHeight - style.iconSize / 1.3),
-        Paint());
-
-    // Right slider
-    canvas.drawImage(
-      image,
-      Offset(
-          rect.right - style.iconSize / 4, halfHeight - style.iconSize / 1.3),
-      Paint(),
-    );
+            rect.right - style.iconSize / 4, halfHeight - style.iconSize / 1.3),
+        Paint(),
+      );
+    }
   }
 
   @override
