@@ -52,6 +52,8 @@ class TrimSlider extends StatefulWidget {
 
   final bool isForReels;
 
+  final bool isReelsMode;
+
   @override
   State<TrimSlider> createState() => _TrimSliderState();
 }
@@ -202,13 +204,21 @@ class _TrimSliderState extends State<TrimSlider>
     width = width ?? _rect.width;
 
     final Duration diff = _getDurationDiff(left, width);
-
-    if (left >= 0 &&
-        left + width - widget.horizontalMargin <= _trimLayout.width &&
-        diff <= widget.controller.maxDuration &&
-        diff >= widget.minDuration) {
-      _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
-      _updateControllerTrim();
+    if (widget.isReelsMode) {
+      if (left >= 0 &&
+          left + width - widget.horizontalMargin <= _trimLayout.width &&
+          diff <= widget.controller.maxDuration &&
+          diff >= widget.minDuration) {
+        _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
+        _updateControllerTrim();
+      }
+    } else {
+      if (left >= 0 &&
+          left + width - widget.horizontalMargin <= _trimLayout.width &&
+          diff <= widget.controller.maxDuration) {
+        _rect = Rect.fromLTWH(left, _rect.top, width, _rect.height);
+        _updateControllerTrim();
+      }
     }
   }
 
@@ -320,25 +330,20 @@ class _TrimSliderState extends State<TrimSlider>
                   child: Stack(children: [
                     NotificationListener<ScrollNotification>(
                       child: SingleChildScrollView(
-                          controller: _scrollController,
-                          scrollDirection: Axis.horizontal,
-                          child: Container(
-                              margin: EdgeInsets.symmetric(
-                                horizontal: widget.horizontalMargin,
-                              ),
-                              child: Column(children: [
-                                SizedBox(
-                                    height: widget.height,
-                                    width: _fullLayout.width,
-                                    child: ThumbnailSlider(
-                                        controller: widget.controller,
-                                        height: widget.height,
-                                        quality: widget.quality)),
-                                if (widget.child != null)
-                                  SizedBox(
-                                      width: _fullLayout.width,
-                                      child: widget.child)
-                              ]))),
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: widget.horizontalMargin,
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                  width: _fullLayout.width, child: widget.child)
+                            ],
+                          ),
+                        ),
+                      ),
                       onNotification: (notification) {
                         _boundary.value = _TrimBoundaries.inside;
                         _updateControllerIsTrimming(true);
